@@ -21,10 +21,11 @@ const _defaultConfig = {
         ],
         "UploadReportMaxTags": 2,
         "StudyListColumns" : [
+            "Selected",
             "PatientBirthDate",
             "PatientName",
             "PatientID",
-            "StudyDescription",
+           // "StudyDescription",
             "StudyDate",
             "modalities",
             "AccessionNumber",
@@ -140,6 +141,25 @@ export default {
             }, 
             {
                 signal: window.axioFindStudiesAbortController.signal
+            });
+    },
+    async cancelFindSeries() {
+        if (window.axioFindSeriesAbortController) {
+            window.axioFindSeriesAbortController.abort();
+            window.axioFindSeriesAbortController = null;
+        }
+    },
+    async findSeries(filterQuery) {
+        await this.cancelFindSeries();
+        window.axioFindSeriesAbortController = new AbortController();
+
+        return axios.post(orthancApiUrl + "tools/find", {
+                "Level": "Series",
+                "Limit": store.state.configuration.uiOptions.MaxStudiesDisplayed,
+                "Query": filterQuery,
+            },
+            {
+                signal: window.axioFindSeriesAbortController.signal
             });
     },
     async cancelRemoteDicomFindStudies() {

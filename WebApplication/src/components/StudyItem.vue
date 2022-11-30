@@ -82,6 +82,11 @@ export default {
                 data-bs-toggle="collapse"
                 v-bind:data-bs-target="'#study-details-' + this.studyId"
             >
+              <span
+                  v-if="columnTag=='Selected'"
+                  v-bind:title="True"
+              >"hello"
+                </span>
                 <span
                     v-if="columnTag=='StudyDate'"
                     data-bs-toggle="tooltip"
@@ -126,6 +131,10 @@ export default {
                 </span>
                 <span
                     v-if="columnTag=='seriesCount'"
+                >{{ fields.Series.length }}
+                </span>
+                <span
+                  v-if="columnTag=='selected'"
                 >{{ fields.Series.length }}
                 </span>
             </td>

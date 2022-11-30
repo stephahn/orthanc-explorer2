@@ -80,7 +80,7 @@ export default {
 <template>
     <div class="nav-side-menu">
         <div>
-            <img class="orthanc-logo" src="..//assets/images/orthanc.png" height="48" />
+            <img class="sharkbiit-logo" src="..//assets/images/logo_sharkbiit.png" height="115" />
         </div>
         <div v-if="uiOptions.ShowOrthancName" class="orthanc-name">
             <p>{{ system.Name }}</p>
@@ -157,6 +157,7 @@ export default {
                 </div>
             </ul>
         </div>
+      <div>made with ♡ with <a href="https://www.orthanc-server.com/" target="_blank" rel="noopener noreferrer">Orthanc</a></div>
     </div>
 </template>
 <style scoped>
@@ -183,8 +184,8 @@ export default {
     font-weight: 500;
 }
 
-.orthanc-logo {
-    filter: brightness(50);
+.sharkbiit-logo {
+    filter: brightness(100);
 }
 
 .nav-side-menu {

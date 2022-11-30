@@ -1,8 +1,22 @@
 <script>
+import {readDICOMTags} from 'itk-wasm'
 import Uppie from "uppie/uppie.min.js"
 import UploadReport from "./UploadReport.vue"
 import api from "../orthancApi"
 
+const webworker = null;
+async function isDataAlreayUploaded(file){
+  try {
+    let tagValues = await readDICOMTags(webworker, file, ["0020|000E"]);
+    let response = await api.findSeries({"SeriesInstanceUID":tagValues.tags.get("0020|000E")});
+
+    return response.data.length>0;
+  }
+  catch (err){
+    return false;
+  }
+
+}
 // Drop handler function to get all files
 async function getAllFileEntries(dataTransferItemList) {
     let fileEntries = [];
@@ -85,12 +99,13 @@ export default {
         return {
             uppie: null,
             uploadCounter: 0,
-            lastUploadReports: {}
+            lastUploadReports: {},
+            processed_directories: []
         };
     },
     mounted() {
         this.uppie = new Uppie();
-        this.uppie(document.querySelector("#filesUpload"), this.uppieUploadHandler);
+        //this.uppie(document.querySelector("#filesUpload"), this.uppieUploadHandler);
         this.uppie(document.querySelector("#foldersUpload"), this.uppieUploadHandler);
     },
     methods: {
@@ -120,7 +135,7 @@ export default {
         },
         async uploadFiles(files) {
             let uploadId = this.uploadCounter++;
-
+            let curDirectory = null;
             this.lastUploadReports[uploadId] = {
                 id: uploadId,
                 filesCount: files.length,
@@ -132,6 +147,7 @@ export default {
                 errorMessages: {}
             };
             for (let file of files) {
+
                 let filename = file.webkitRelativePath || file.name;
                 if (file.name == "DICOMDIR") {
                     console.log("upload: skipping DICOMDIR file");
@@ -139,34 +155,56 @@ export default {
                     this.lastUploadReports[uploadId].errorMessages[filename] = "skipped";
                     continue;
                 }
-                const fileContent = await readFileAsync(file);
-                try {
-                    const uploadResponse = await api.uploadFile(fileContent);
+                let pathStrSplit = file.webkitRelativePath.split('/')
+                let fileName = pathStrSplit.pop()
+                let directoryName = pathStrSplit.join('/')
+                let retrivedDirectory = this.processed_directories.filter(e => e.directory === directoryName);
 
-                    if (Array.isArray(uploadResponse.data)) { // we have uploaded a zip
-
-                        if (uploadResponse.data.length > 0) {
-                            this.lastUploadReports[uploadId].successFilesCount++;
-                            for (let uploadFileResponse of uploadResponse.data) {
-                                this.uploadedFile(uploadId, uploadFileResponse);
-                            }
-                        } else {
-                            this.lastUploadReports[uploadId].failedFilesCount++;
-                            this.lastUploadReports[uploadId].errorMessages[filename] = "no valid DICOM files found in zip";
-                        }
-                    } else {
-                        this.lastUploadReports[uploadId].successFilesCount++;
-                        this.uploadedFile(uploadId, uploadResponse.data);
-                    }
+                if (retrivedDirectory.length === 0){
+                  this.processed_directories.push({
+                    directory: directoryName,
+                    fileName: fileName,
+                    pathStrSplit: pathStrSplit,
+                    full: file.webkitRelativePath,
+                    uploadIt: !await isDataAlreayUploaded(file)
+                  });
+                  curDirectory = this.processed_directories[this.processed_directories.length-1];
+                }else {
+                  curDirectory = retrivedDirectory[0];
                 }
-                catch (error) {
+                if (curDirectory.uploadIt) {
+                  const fileContent = await readFileAsync(file);
+                  try {
+                    const uploadResponse = await api.uploadFile(fileContent);
+                    if (Array.isArray(uploadResponse.data)) { // we have uploaded a zip
+                      if (uploadResponse.data.length > 0) {
+                        this.lastUploadReports[uploadId].successFilesCount++;
+                        for (let uploadFileResponse of uploadResponse.data) {
+                          this.uploadedFile(uploadId, uploadFileResponse);
+                        }
+                      } else {
+                        this.lastUploadReports[uploadId].failedFilesCount++;
+                        this.lastUploadReports[uploadId].errorMessages[filename] = "no valid DICOM files found in zip";
+                      }
+                    } else {
+                      this.lastUploadReports[uploadId].successFilesCount++;
+                      this.uploadedFile(uploadId, uploadResponse.data);
+                    }
+                  } catch (error) {
                     console.log(error);
                     let errorMessage = "error " + error.response.status;
                     if (error.response.status >= 400 && error.response.status < 500) {
-                        errorMessage = error.response.data.Message;
+                      errorMessage = error.response.data.Message;
                     }
                     this.lastUploadReports[uploadId].failedFilesCount++;
                     this.lastUploadReports[uploadId].errorMessages[filename] = errorMessage;
+                  }
+                }
+                else{
+                  console.log("upload: skipping DICOMDIR file");
+                  this.lastUploadReports[uploadId].skippedFilesCount++;
+                  this.lastUploadReports[uploadId].errorMessages[filename] = "skipped";
+                  continue;
                 }
             }
         },
@@ -188,11 +226,11 @@ export default {
                         multiple directory webkitdirectory allowdirs>
                 </label>
             </div>
-            <div class="mb-3">
+            <!--<div class="mb-3">
                 <label class="btn btn-primary btn-file">
                     {{ $t('select_files') }} <input type="file" style="display: none;" id="filesUpload" required multiple>
                 </label>
-            </div>
+            </div>-->
         </div>
         <div class="upload-report-list">
             <UploadReport v-for="(upload, key) in lastUploadReports" :report="upload" :key="key"

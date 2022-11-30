@@ -62,7 +62,7 @@ export default {
                     v-bind:style="'width: ' + this.pctSuccess + '%'"></div>
                 <div class="progress-bar bg-secondary" role="progressbar"
                     v-bind:style="'width: ' + this.pctSkipped + '%'"></div>
-                <div class="progress-bar bg-danger" role="progressbar" v-bind:style="'width: ' + this.pctFailed + '%'">
+                <div class="progress-bar bg-secondary" role="progressbar" v-bind:style="'width: ' + this.pctFailed + '%'">
                 </div>
             </div>
             <div v-show="Object.keys(report.errorMessages).length > 0">

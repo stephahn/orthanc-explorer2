@@ -1,11 +1,37 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import copy from 'rollup-plugin-copy'
+import path from 'path'
 
+const itkConfig = path.resolve(__dirname, 'src', 'itkConfig.js')
 // https://vitejs.dev/config/
 export default defineConfig({
   assetsInclude: './src/assets',
   base: '',
-  plugins: [vue()],
+  plugins: [vue(),
+    copy({
+      targets: [
+        { src: 'node_modules/itk-wasm/dist/web-workers', dest: 'dist/itk' },
+        {
+          src: 'node_modules/itk-image-io',
+          dest: 'dist/itk',
+          rename: 'image-io'
+        },
+        {
+          src: 'node_modules/itk-mesh-io',
+          dest: 'dist/itk',
+          rename: 'mesh-io'
+        }
+      ],
+      hook: 'writeBundle'
+    })],
+  resolve: {
+    // where itk-wasm code has 'import ../itkConfig.js` point to the path of itkConfig
+    alias: {
+      '../itkConfig.js': itkConfig,
+      '../../itkConfig.js': itkConfig
+    }
+  },
   server: {
     host: true
   },

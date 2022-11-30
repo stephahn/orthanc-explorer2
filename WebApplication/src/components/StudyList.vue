@@ -7,6 +7,11 @@ import $ from "jquery"
 document._allowedFilters = ["StudyDate", "StudyTime", "AccessionNumber", "PatientID", "PatientName", "PatientBirthDate", "StudyInstanceUID", "StudyID", "StudyDescription", "ModalitiesInStudy"]
 
 document._studyColumns = {
+   "StudyDescription": {
+    "width": "25%",
+    "title": "Study description",
+    "tooltip": "study_description"
+    },
     "StudyDate": {
         "width": "7%",
         "title": "study_date",
@@ -32,11 +37,7 @@ document._studyColumns = {
         "title": "patient_birth_date",
         "tooltip": "patient_birth_date"
     },
-    "StudyDescription": {
-        "width": "25%",
-        "title": "description",
-        "tooltip": "study_description"
-    },
+
     "modalities": {
         "width": "6%",
         "title": "modalities_in_study",
@@ -49,6 +50,12 @@ document._studyColumns = {
         "tooltip": "number_of_series",
         "extraClasses": "text-center"
     },
+  "Selected": {
+    "width": "4%",
+    "title": "Selected",
+    "tooltip": "selected",
+    "extraClasses": "checkbox"
+  },
 }
 
 
@@ -65,6 +72,7 @@ export default {
             filterPatientBirthDate: '',
             filterStudyDescription: '',
             filterModalities: {},
+            selected: false,
             allModalities: true,
             noneModalities: false,
             updatingFilterUi: false,
@@ -254,6 +262,7 @@ export default {
         getFilterValue(dicomTagName) {
             if (dicomTagName == "StudyDate") {
                 return this.filterStudyDate;
+
             } else if (dicomTagName == "AccessionNumber") {
                 return this.filterAccessionNumber;
             } else if (dicomTagName == "PatientID") {
@@ -266,6 +275,8 @@ export default {
                 return this.filterStudyDescription;
             } else if (dicomTagName == "ModalitiesInStudy") {
                 console.error("getFilterValue ModalitiesInStudy");
+            } else if (dicomTagName == "Selected") {
+              return this.selected;
             }
         },
         _updateFilter(dicomTagName, value) {
@@ -388,6 +399,9 @@ export default {
                 this.filterModalities[key] = newValue;
             }
         },
+      async toggleSelectedSeries(ev){
+          console.log("clicked");
+      },
         modalityFilterClicked(ev) {  // prevent closing the drop-down at every click
             ev.stopPropagation();
         },
@@ -468,6 +482,7 @@ export default {
                     </button>
                 </th>
                 <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag">
+
                     <input v-if="columnTag == 'StudyDate'" type="text" class="form-control study-list-filter"
                         v-model="filterStudyDate" placeholder="20220130" v-bind:class="getFilterClass('StudyDate')"/>
                     <input v-if="columnTag == 'AccessionNumber'" type="text" class="form-control study-list-filter"
@@ -478,7 +493,9 @@ export default {
                         v-model="filterPatientName" placeholder="John^Doe" v-bind:class="getFilterClass('PatientName')"/>
                     <input v-if="columnTag == 'PatientBirthDate'" type="text" class="form-control study-list-filter"
                         v-model="filterPatientBirthDate" placeholder="19740815" v-bind:class="getFilterClass('PatientBirthDate')"/>
-                    <div v-if="columnTag == 'modalities'" class="dropdown">
+                    <input v-if="columnTag == 'Selected'" type="checkbox" @click="toggleSelectedSeries" v-model="selected" v-bind:class="getFilterClass('Selected')"/>
+
+                  <div v-if="columnTag == 'modalities'" class="dropdown">
                         <button type="button" class="btn btn-default btn-sm filter-button dropdown-toggle" data-bs-toggle="dropdown"
                             id="dropdown-modalities-button" aria-expanded="false"><span
                                 class="fa fa-list"></span>&nbsp;<span class="caret"></span></button>
@@ -497,8 +514,8 @@ export default {
                                     data-bs-toggle="dropdown">{{$t('close')}}</button></li>
                         </ul>
                     </div>
-                    <input v-if="columnTag == 'StudyDescription'" type="text" class="form-control study-list-filter"
-                        v-model="filterStudyDescription" placeholder="Chest" />
+                 <!--   <input v-if="columnTag == 'StudyDescription'" type="text" class="form-control study-list-filter"
+                        v-model="filterStudyDescription" placeholder="Chest" />-->
                 </th>
             </thead>
             <StudyItem v-for="studyId in studiesIds" :key="studyId" :studyId="studyId" :isSearchButtonEnabled="isSearchButtonEnabled" @deletedStudy="onDeletedStudy">
