@@ -11,15 +11,15 @@ export default defineConfig({
   plugins: [vue(),
     copy({
       targets: [
-        { src: 'node_modules/itk-wasm/dist/web-workers', dest: 'dist/itk' },
+        { src: './node_modules/itk-wasm/dist/web-workers', dest: 'dist/itk', rename: 'web-workers'},
         {
-          src: 'node_modules/itk-image-io',
-          dest: 'dist/itk',
+          src: './node_modules/itk-image-io',
+          dest: 'dist/assets/itk',
           rename: 'image-io'
         },
         {
-          src: 'node_modules/itk-mesh-io',
-          dest: 'dist/itk',
+          src: './node_modules/itk-mesh-io',
+          dest: 'dist/assets/itk',
           rename: 'mesh-io'
         }
       ],

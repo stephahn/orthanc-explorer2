@@ -15,6 +15,7 @@ const _clearedFilter = {
 const state = () => ({
     studies: [],  // studies as returned by tools/find
     studiesIds: [],
+    studiesSelected: [],
     filters: {..._clearedFilter},
     statistics: {},
     isSearching: false
@@ -69,6 +70,7 @@ const getters = {
 const mutations = {
     setStudiesIds(state, { studiesIds }) {
         state.studiesIds = studiesIds;
+        state.studiesSelected = Array.from({length:state.studiesIds.length}, () => false);
     },
     setStudies(state, { studies }) {
         state.studies = studies;
@@ -77,6 +79,7 @@ const mutations = {
         if (!state.studiesIds.includes(studyId)) {
             state.studiesIds.push(studyId);
             state.studies.push(study);
+            state.studiesSelected.push(false);
         }
 
     },
@@ -90,6 +93,7 @@ const mutations = {
         const pos = state.studiesIds.indexOf(studyId);
         if (pos >= 0) {
             state.studiesIds.splice(pos, 1);
+            state.studiesSelected.splice(pos, 1);
         }
         state.studies = state.studies.map(s => s["ID"] != studyId);
     },

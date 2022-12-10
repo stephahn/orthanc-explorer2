@@ -12,7 +12,8 @@ export default {
             fields: {},
             loaded: false,
             expanded: false,
-            collapseElement: null
+            collapseElement: null,
+            selected: false,
         };
     },
     async mounted() {
@@ -37,8 +38,9 @@ export default {
 
         var el = this.$refs['study-collapsible-details'];
         this.collapseElement = new bootstrap.Collapse(el, {toggle: false});
-
         for (const [k, v] of Object.entries(this.$route.query)) {
+
+
             if (k === 'expand') {
                 if (v == null || v === 'study' || v === 'series' || v === 'instance') {
                     this.collapseElement.show();
@@ -50,6 +52,13 @@ export default {
     methods: {
         onDeletedStudy(studyId) {
             this.$emit("deletedStudy", this.studyId);
+        },
+        onSelected(ev){
+          this.selected = !this.selected
+        },
+        getDisplayedColumnsName(){
+          //const index = this.uiOptions.StudyListColumns.indexOf('Selected');
+          return  this.uiOptions.StudyListColumns//.slice(0, index).concat(this.uiOptions.StudyListColumns.slice(index+1));
         }
     },
     computed: {
@@ -74,19 +83,15 @@ export default {
         >
             <td></td>
             <td v-if="isSearchButtonEnabled"></td>
+
             <td
-                v-for="columnTag in uiOptions.StudyListColumns"
+                v-for="columnTag in getDisplayedColumnsName()"
                 :key="columnTag"
                 class="cut-text"
                 :class="{ 'text-center' : columnTag in ['modalities', 'seriesCount']}"
-                data-bs-toggle="collapse"
                 v-bind:data-bs-target="'#study-details-' + this.studyId"
+                data-bs-toggle="collapse"
             >
-              <span
-                  v-if="columnTag=='Selected'"
-                  v-bind:title="True"
-              >"hello"
-                </span>
                 <span
                     v-if="columnTag=='StudyDate'"
                     data-bs-toggle="tooltip"
@@ -117,12 +122,12 @@ export default {
                     v-bind:title="fields.PatientMainDicomTags.PatientBirthDate"
                 >{{ fields.PatientMainDicomTags.PatientBirthDate }}
                 </span>
-                <span
+                <!--<span
                     v-if="columnTag=='StudyDescription'"
                     data-bs-toggle="tooltip"
                     v-bind:title="fields.MainDicomTags.StudyDescription"
                 >{{ fields.MainDicomTags.StudyDescription }}
-                </span>
+                </span>-->
                 <span
                     v-if="columnTag=='modalities'"
                     data-bs-toggle="tooltip"
@@ -131,10 +136,6 @@ export default {
                 </span>
                 <span
                     v-if="columnTag=='seriesCount'"
-                >{{ fields.Series.length }}
-                </span>
-                <span
-                  v-if="columnTag=='selected'"
                 >{{ fields.Series.length }}
                 </span>
             </td>

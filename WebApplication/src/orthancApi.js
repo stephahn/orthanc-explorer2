@@ -21,7 +21,7 @@ const _defaultConfig = {
         ],
         "UploadReportMaxTags": 2,
         "StudyListColumns" : [
-            "Selected",
+            //"Selected",
             "PatientBirthDate",
             "PatientName",
             "PatientID",

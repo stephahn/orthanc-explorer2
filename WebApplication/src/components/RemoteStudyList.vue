@@ -629,6 +629,7 @@ button.form-control.study-list-filter {
 }
 
 .study-table-header {
+    width: 10%;
     text-align: left;
     padding-left: 10px;
 }

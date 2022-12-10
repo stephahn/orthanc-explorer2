@@ -40,7 +40,7 @@ export default {
         isConfigurationLoaded(newValue, oldValue) {
             this.availableLanguages = this.uiOptions.AvailableLanguages;
             let done = false;
-
+            console.log(this.uiOptions);
             if (this.availableLanguages.length == 1) {
                 let languageKey = this.availableLanguages[0];
                 console.log("language picker: selecting first and only language: ", languageKey)

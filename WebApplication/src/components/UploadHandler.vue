@@ -4,17 +4,22 @@ import Uppie from "uppie/uppie.min.js"
 import UploadReport from "./UploadReport.vue"
 import api from "../orthancApi"
 
-const webworker = null;
+
 async function isDataAlreayUploaded(file){
   try {
-    let tagValues = await readDICOMTags(webworker, file, ["0020|000E"]);
-    let response = await api.findSeries({"SeriesInstanceUID":tagValues.tags.get("0020|000E")});
+    let tag = await readDICOMTags(null, file, ["0020|000E"]).then(function ({webWorker, arrayBuffer, tags}) {
+      webWorker.terminate();
+      return tags.get("0020|000E");
+    })
 
+    let response = await api.findSeries({"SeriesInstanceUID": tag})
     return response.data.length>0;
   }
-  catch (err){
-    return false;
+  catch(err){
+    console.log(file);
+    return false
   }
+
 
 }
 // Drop handler function to get all files

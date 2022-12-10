@@ -8,53 +8,63 @@ document._allowedFilters = ["StudyDate", "StudyTime", "AccessionNumber", "Patien
 
 document._studyColumns = {
    "StudyDescription": {
-    "width": "25%",
+    "width": "10%",
     "title": "Study description",
-    "tooltip": "study_description"
-    },
+    "tooltip": "study_description",
+     "extraClasses": "width11"
+
+   },
     "StudyDate": {
-        "width": "7%",
+        "width": "10%",
         "title": "study_date",
         "tooltip": "study_date"
     },
     "AccessionNumber": {
-        "width": "11%",
+        "width": "10%",
         "title": "accession_number",
-        "tooltip": "accession_number"
+        "tooltip": "accession_number",
+      "extraClasses": "width11"
+
     },
     "PatientID": {
-        "width": "11%",
+        "width": "10%",
         "title": "patient_id",
-        "tooltip": "patient_id"
+        "tooltip": "patient_id",
+      "extraClasses": "width11"
+
     },
     "PatientName": {
-        "width": "15%",
+        "width": "10%",
         "title": "patient_name",
-        "tooltip": "patient_name"
+        "tooltip": "patient_name",
+      "extraClasses": "width11"
+
     },
     "PatientBirthDate": {
-        "width": "7%",
+        "width": "10%",
         "title": "patient_birth_date",
-        "tooltip": "patient_birth_date"
+        "tooltip": "patient_birth_date",
+      "extraClasses": "width11"
+
     },
 
     "modalities": {
-        "width": "6%",
+        "width": "10%",
         "title": "modalities_in_study",
         "tooltip": "modalities_in_study",
-        "extraClasses": "text-center"
+        "extraClasses": "text-center width11"
     },
     "seriesCount": {
-        "width": "4%",
+        "width": "10%",
         "title": "series",
         "tooltip": "number_of_series",
-        "extraClasses": "text-center"
+        "extraClasses": "text-center width11"
     },
   "Selected": {
-    "width": "4%",
+    "width": "10%",
     "title": "Selected",
     "tooltip": "selected",
-    "extraClasses": "checkbox"
+    "extraClasses": "width11"
   },
 }
 
@@ -72,7 +82,7 @@ export default {
             filterPatientBirthDate: '',
             filterStudyDescription: '',
             filterModalities: {},
-            selected: false,
+            allSelected: false,
             allModalities: true,
             noneModalities: false,
             updatingFilterUi: false,
@@ -87,6 +97,7 @@ export default {
             uiOptions: state => state.configuration.uiOptions,
             isConfigurationLoaded: state => state.configuration.loaded,
             studiesIds: state => state.studies.studiesIds,
+            studiesSelected: state => state.studies.studiesSelected,
             isSearching: state => state.studies.isSearching,
             statistics: state => state.studies.statistics
         }),
@@ -195,7 +206,7 @@ export default {
                 this.allModalities = true;
                 this.noneModalities = false;
                 return "";
-            } else if (selected.length == 0) {
+            } else if (selected.length === 0) {
                 this.allModalities = false;
                 this.noneModalities = true;
                 return "NONE"; // something that will not match !
@@ -276,7 +287,7 @@ export default {
             } else if (dicomTagName == "ModalitiesInStudy") {
                 console.error("getFilterValue ModalitiesInStudy");
             } else if (dicomTagName == "Selected") {
-              return this.selected;
+              return this.allSelected;
             }
         },
         _updateFilter(dicomTagName, value) {
@@ -400,7 +411,8 @@ export default {
             }
         },
       async toggleSelectedSeries(ev){
-          console.log("clicked");
+          this.allSelected = !this.allSelected;
+
       },
         modalityFilterClicked(ev) {  // prevent closing the drop-down at every click
             ev.stopPropagation();
@@ -493,7 +505,7 @@ export default {
                         v-model="filterPatientName" placeholder="John^Doe" v-bind:class="getFilterClass('PatientName')"/>
                     <input v-if="columnTag == 'PatientBirthDate'" type="text" class="form-control study-list-filter"
                         v-model="filterPatientBirthDate" placeholder="19740815" v-bind:class="getFilterClass('PatientBirthDate')"/>
-                    <input v-if="columnTag == 'Selected'" type="checkbox" @click="toggleSelectedSeries" v-model="selected" v-bind:class="getFilterClass('Selected')"/>
+                    <!--<input v-if="columnTag == 'Selected'" type="checkbox" @click="toggleSelectedSeries" v-model="selected" />-->
 
                   <div v-if="columnTag == 'modalities'" class="dropdown">
                         <button type="button" class="btn btn-default btn-sm filter-button dropdown-toggle" data-bs-toggle="dropdown"
@@ -575,6 +587,9 @@ input.form-control.study-list-filter:not(:placeholder-shown) {
 input.form-control.study-list-filter::placeholder {
     color: rgb(200, 200, 200);
 }
+input.form-control.study-list-filter[type=checkbox] {
+
+}
 
 button.form-control.study-list-filter {
     color: black;
@@ -585,6 +600,7 @@ button.form-control.study-list-filter {
 }
 
 .study-table-header {
+  width: 10%;
     text-align: left;
     padding-left: 10px;
 }
@@ -620,6 +636,9 @@ button.form-control.study-list-filter {
     /* background-color: #f7dddf !important; */
     border-color: red !important;
     box-shadow: 0 0 0 .25rem rgba(255, 0, 0, .25) !important;
+}
+.width11{
+  width: 11%;
 }
 
 </style>
